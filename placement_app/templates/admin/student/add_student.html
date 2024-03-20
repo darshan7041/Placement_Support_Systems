@@ -1,0 +1,88 @@
+{% extends 'admin/main_admin.html' %}
+{% load static %}
+{% block 'content' %}
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+
+    <!--<p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
+                        For more information about DataTables, please visit the <a target="_blank"
+                            href="https://datatables.net">official DataTables documentation</a>.</p> -->
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Add Student</h6>
+
+            <div class="form-group">
+                <label for="exampleFormControlFile1">Insert Data</label>
+                <input type="file" class="form-control-file" id="exampleFormControlFile1">
+            </div>
+
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                {% for message in messages %}
+                <div class="alert alert-success text-capitalize fs-5 text-center" role="alert">
+                    {{message}}
+                </div>
+                {% endfor %}
+                <form class="row g-2" action="/adding_student/" method="post">
+                    {% csrf_token %}
+                    <div class="col-md-3">
+                        <label for="inputfirstName" class="form-label">First Name</label>
+                        <input type="text" name="f_name" class="form-control" id="inputfirstName">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="inputMiddleName" class="form-label">Middle Name</label>
+                        <input type="text" name="m_name" class="form-control" id="inputMiddleName">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="inputlastName" class="form-label">Last Name</label>
+                        <input type="text" name="l_name" class="form-control" id="inputlastName">
+                    </div>
+
+                    <div class="col-md-5">
+                        <label for="inputEmail4" class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" id="inputEmail4">
+                    </div>
+                    <div class="col-md-5">
+                        <label for="inputcontactl4" class="form-label">Contact</label>
+                        <input type="Number" name="phone_number" class="form-control" id="inputcontactl4">
+                    </div>
+
+                    <div class="col-md-5">
+                        <label for="input_enrollment_number4" class="form-label">Enrollment Number</label>
+                        <input type="Number" name="enrollment_num" class="form-control" id="input_enrollment_number4">
+                    </div><br><br><br><br>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                    {% comment %} <div class="col-md-2">
+                        <label for="inputState" class="form-label">State</label>
+                        <select id="inputState" class="form-select">
+                            <option selected>Choose...</option>
+                            <option>...</option>
+                        </select>s
+                    </div> {% endcomment %}
+                    {% comment %} <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="gridCheck">
+                            <label class="form-check-label" for="gridCheck">
+                                Check me out
+                            </label>
+                        </div>
+                    </div> {% endcomment %}
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+
+{% endblock 'content'%}

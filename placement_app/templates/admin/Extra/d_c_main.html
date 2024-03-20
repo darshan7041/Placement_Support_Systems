@@ -1,0 +1,59 @@
+{% extends 'admin/main_admin.html' %}
+{% load static %}
+{% block 'content' %}
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Data</h1>
+    <!--<p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
+                        For more information about DataTables, please visit the <a target="_blank"
+                            href="https://datatables.net">official DataTables documentation</a>.</p> -->
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Cources</h6>
+        </div>
+        <a href="{% url "course_list" %}">
+        <div class="col-xl-4 col-md-7 mb-3 mt-5 ml-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Course's</div>
+                        </div>
+                        <div class="col-auto">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </a>
+        <a href="{% url "department_list" %}">
+        <div class="col-xl-4 col-md-7 mb-5 mt-5 ml-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Department's</div>
+                        </div>
+                        <div class="col-auto">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </a>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+
+{% endblock 'content'%}

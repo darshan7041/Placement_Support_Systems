@@ -1,0 +1,61 @@
+{% extends 'admin/main_admin.html' %}
+{% load static %}
+{% block 'content' %}
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Data</h1>
+    <!--<p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
+                        For more information about DataTables, please visit the <a target="_blank"
+                            href="https://datatables.net">official DataTables documentation</a>.</p> -->
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Courses</h6>
+        </div>
+        <div class="card-body">
+            <a href="/course_add/" class="btn btn-success btn-squre btn-lr "  >
+                                        {% comment %} <i class="fas fa-trash"></i> {% endcomment %}
+                                        Add
+
+                                    </a><br><br>
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in c_lists %}
+                        <tr>
+                            <td>{{c.course_id}}</td>
+                            <td>{{c.course_name}}</td>
+                            <td>{{c.d.d_name}}</td>
+                            <td>
+                                <a href="/course_edit/{{c.course_id}}/" class="btn  btn-success  btn-sm">
+                                        <i class="fas fa-thin fa-pen"></i>
+                                    </a>
+
+                                <a href="/course_delete/{{c.course_id}}/" class="btn btn-danger btn-squre btn-sm "  >
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+
+{% endblock 'content'%}
