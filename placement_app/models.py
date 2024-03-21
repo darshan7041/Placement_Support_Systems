@@ -100,6 +100,16 @@ class AuthUserUserPermissions(models.Model):
         unique_together = (('user', 'permission'),)
 
 
+class AuthtokenToken(models.Model):
+    key = models.CharField(primary_key=True, max_length=40)
+    created = models.DateTimeField()
+    user = models.OneToOneField(AuthUser, models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'authtoken_token'
+
+
 class CompanyRegistration(models.Model):
     c_id = models.AutoField(primary_key=True)
     c_name = models.CharField(max_length=100, blank=True, null=True)
@@ -107,7 +117,9 @@ class CompanyRegistration(models.Model):
     c_contact_no = models.IntegerField(blank=True, null=True)
     c_email = models.CharField(max_length=50, blank=True, null=True)
     c_url = models.CharField(db_column='c_URL', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    c_location = models.CharField(max_length=450, blank=True, null=True)
+    company_no = models.IntegerField(blank=True, null=True)
+    area = models.CharField(max_length=50, blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -127,9 +139,6 @@ class Cource(models.Model):
 class Department(models.Model):
     d_id = models.AutoField(primary_key=True)
     d_name = models.CharField(max_length=40)
-
-    def __str__(self):
-        return self.d_name
 
     class Meta:
         managed = False
@@ -220,8 +229,11 @@ class Student(models.Model):
     s_password = models.CharField(max_length=40, blank=True, null=True)
     d = models.ForeignKey(Department, models.DO_NOTHING, blank=True, null=True)
     course = models.ForeignKey(Cource, models.DO_NOTHING, blank=True, null=True)
-    s_address_permanent = models.CharField(max_length=300, blank=True, null=True)
-    s_address_temporary = models.CharField(max_length=300, blank=True, null=True)
+    home_no = models.IntegerField(blank=True, null=True)
+    block_no = models.CharField(max_length=3, blank=True, null=True)
+    flat_society_name = models.CharField(max_length=60, blank=True, null=True)
+    area = models.CharField(max_length=40, blank=True, null=True)
+    city = models.CharField(max_length=40, blank=True, null=True)
 
     class Meta:
         managed = False

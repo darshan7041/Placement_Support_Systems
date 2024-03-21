@@ -1,11 +1,27 @@
 from django.shortcuts import render,redirect
+
+from placement_app.serialization import *
 from .models import *
 from django.contrib import messages
 from django.contrib.auth import logout as logout
 import openpyxl 
 from django.http import HttpResponse
-
+from rest_framework import generics
 # Create your views here.
+
+
+
+# <----------------------------- API Only------------------------------>
+
+class stu_c_l(generics.ListCreateAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+
+
+class stu_r_u_d(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+
 
 
 # <----------------------------- Admin login Only------------------------------>
@@ -112,6 +128,8 @@ def adding_student(request):
         l_n=request.POST.get('l_name')
         enroll_num=request.POST.get('enrollment_num')
         mobile=request.POST.get('phone_number')
+        email=request.POST.get('email')
+        email=request.POST.get('email')
         email=request.POST.get('email')
 
 

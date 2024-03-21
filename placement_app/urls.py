@@ -1,8 +1,12 @@
 from django.urls import path
 from placement_app import views
-
+from .views import stu_c_l,stu_r_u_d
 
 urlpatterns = [ 
+
+# <------------------------------ API Only------------------------------->
+path('home_app/',stu_c_l.as_view(),name="home_app"),
+path('<int:pk>',stu_r_u_d.as_view(),name="home_app"),
 
 
 # <------------------------------ Admin login Only------------------------------->
