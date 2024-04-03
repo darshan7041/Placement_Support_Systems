@@ -10,7 +10,11 @@
     <!--<p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below.
                         For more information about DataTables, please visit the <a target="_blank"
                             href="https://datatables.net">official DataTables documentation</a>.</p> -->
-
+    {% for message in messages %}
+    <div class="alert alert-success text-capitalize fs-5 text-center" role="alert">
+        {{message}}
+    </div>
+    {% endfor %} 
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
@@ -23,10 +27,20 @@
                         <tr>
                             <th>Id</th>
                             <th>Name</th>
+                            <th>Enrollment Number</th>
                             <th>Contact</th>
+                            <th>Aadhar Card</th>
+                            <th>Guardian Contact no.</th>
+                            <th>Guardian Email</th>
                             <th>Email</th>
-                            <th>Permanent Address</th>
-                            <th>Temporary Address</th>
+                            <th>Password</th>
+                            <th>Department</th>
+                            <th>Course</th>
+                            <th>Home no</th>
+                            <th>Block no</th>
+                            <th>Flat/Society name</th>
+                            <th>Area</th>
+                            <th>City</th>
                             <th>Options</th>
                         </tr>
                     </thead>
@@ -35,19 +49,28 @@
                         <tr>
                             <td>{{student.s_id}}</td>
                             <td>{{student.s_f_name}} {{student.s_m_name}} {{student.s_l_name}}</td>
+                            <td>{{student.s_enrollment_number}}</td>
                             <td>{{student.s_phone_number}}</td>
+                            <td>{{student.s_aadhar_card}}</td>
+                            <td>{{student.s_guardian_mobile_number}}</td>
+                            <td>{{student.s_guardian_email}}</td>
                             <td>{{student.s_email}}</td>
-                            <td>{{student.s_address_permanent}}</td>
-                            <td>{{student.s_address_temporary}}</td>
+                            <td>{{student.s_password}}</td>
+                            <td>{{student.d}}</td>
+                            <td>{{student.course}}</td>
+                            <td>{{student.home_no}}</td>
+                            <td>{{student.block_no}}</td>
+                            <td>{{student.flat_society_name}}</td>
+                            <td>{{student.area}}</td>
+                            <td>{{student.city}}</td>
                             <td>
                                 
                                 <a href="/student_qualification/{{student.s_id}}/" class="btn  btn-success btn-sm">
-                                        <i class="fas fa-solid fa-info"></i>
-                                    </a>
-
+                                        <i class="fas fa-solid fa-info"></i> </a>
                                 <a href="/student_delete/{{student.s_id}}/" class="btn btn-danger btn-squre btn-sm "  >
-                                        <i class="fas fa-trash"></i>
-                                    </a>
+                                        <i class="fas fa-trash"></i></a>
+                                <a href="/student_edit/{{student.s_id}}/" class="btn btn-success btn-squre btn-sm "  >
+                                    <i class="fa fa-pen"></i></a>
                             </td>
                         </tr>
                         {% endfor %}

@@ -5,10 +5,16 @@ from .models import *
 from django.contrib import messages
 from django.contrib.auth import logout as logout
 import openpyxl 
+import csv
 from django.http import HttpResponse
 from rest_framework import generics
 # Create your views here.
 
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
+
+from django.core.exceptions import ValidationError
 
 
 # <----------------------------- API Only------------------------------>
@@ -21,6 +27,32 @@ class stu_c_l(generics.ListCreateAPIView):
 class stu_r_u_d(generics.RetrieveUpdateDestroyAPIView):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+
+
+
+# views.py or wherever you want to send the email
+
+
+def send_email(request):
+    subject = 'Subject of your email'
+    message = 'Message of your email'
+    sender = 'ds704198@gmail.com'  # Replace with your Gmail address
+    recipient = 'darshansolanki0502.com'  # Replace with recipient's email address
+    
+    # Render the email template with dynamic content
+    email_html = render_to_string('admin/email.html', {'subject': subject, 'message': message, 'sender': sender, 'greeting': 'Hello!'})
+    
+    # Send the email using Gmail SMTP with App Password
+    send_mail(
+        subject,
+        message,
+        sender,
+        [recipient],
+        html_message=email_html,
+        fail_silently=False,
+        auth_user='ds704198@gmail.com',  # Replace with your Gmail address
+        auth_password='darshan14789'  # Replace with your App Password
+    )
 
 
 
@@ -95,8 +127,8 @@ def student_qualification(request, id):
         sq_list = StudentQualification.objects.get(s=id)
     except StudentQualification.DoesNotExist:
         # Handle the case when the object does not exist
-        return HttpResponse("Student qualification with the given ID does not exist.")
-    
+        messages.error (request,"Data is not Added.")
+        return redirect('/student_table/')
     return render(request, 'admin/student/student_qualification.html', {'sq': sq_list})
 
 
@@ -168,9 +200,118 @@ def student_delete(request,id):
         s_delete=Student.objects.get(s_id=id)
         s_delete.delete()
         return redirect('/student_table/')
+ 
+
+def add_student_ex(request):
+    if request.method == 'POST' and request.FILES['csv_file']:
+        csv_file = request.FILES['csv_file']
+        
+        # Track errors during data processing
+        errors = []
+
+        # Iterate over rows and save data to the database
+        try:
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            reader = csv.reader(decoded_file)
+
+            # Get the header row
+            header = next(reader)
+
+            # Define the mapping of column names to dictionary keys
+            column_mapping = {
+                'First_name': 's_f_name',
+                'Middle_name': 's_m_name',
+                'Last_name': 's_l_name',
+                'Enrollment_number': 's_enrollment_number',
+                'Phone_number': 's_phone_number',
+                'Aadhar_card': 's_aadhar_card',
+                'Guardian_mobile_number': 's_guardian_mobile_number',
+                'Guardian_email': 's_guardian_email',
+                'Email': 's_email',
+                'Password': 's_password',
+                'Department_id': 'd_id',
+                'Course_id': 'course_id',
+                'Home_no': 'home_no',
+                'Block_no': 'block_no',
+                'Flat_society_name': 'flat_society_name',
+                'Area': 'area',
+                'City': 'city',
+            }
+
+            # Iterate over rows
+            for row in reader:
+                # Map column names to dictionary keys
+                mapped_row = {column_mapping.get(header[i], header[i]): row[i] for i in range(len(row))}
+                
+                print("Mapped Row:", mapped_row) 
+
+                # Validate enrollment number
+                enrollment_number = mapped_row.get('s_enrollment_number')
+                if not enrollment_number.isdigit():
+                    errors.append(f"Enrollment number '{enrollment_number}' is not a valid integer.")
+
+                try:
+                    student = Student.objects.create(**mapped_row)
+                except Exception as e:
+                    errors.append(str(e))
+        except Exception as e:
+            errors.append(str(e))
+        
+        if errors:
+            messages.success(request, 'CSV file uploaded successfully.')
+        else:
+            messages.error(request, 'Errors occurred while processing the CSV file: {}'.format(', '.join(errors)))
+        
+        return redirect('student_table')
+
+    return render(request, 'admin/student/add_student.html')
 
 
+def student_edit(request,id):
+        session_data=request.session.get('a_email')
+        if session_data:
+                print("welcome",session_data)
+        else:
+                print("not login")
+                return redirect('/admin_login/')
+        
+        d_show=Student.objects.get(s_id=id)  
+        return render(request,'admin/student/edit.html',{'show_d':d_show})
 
+def student_editing(request,id):
+        f_n=request.POST.get('f_name')
+        m_n=request.POST.get('m_name')
+        l_n=request.POST.get('l_name')
+        enroll_num=request.POST.get('enrollment_num')
+        mobile=request.POST.get('phone_number')
+        email=request.POST.get('email')
+        
+        # aadhar_card=request.POST.get('aadhar_card')
+        # g_mobile_num=request.POST.get('g_mobile_num')
+        # g_email=request.POST.get('g_email')
+        # password=request.POST.get('password')
+        # depart=request.POST.get('department')
+        # cource=request.POST.get('cource')
+        # address_per=request.POST.get('address_per')
+        # address_temp=request.POST.get('address_temp')
+
+        studetn_add=Student(s_id=id,s_f_name=f_n,
+                               s_m_name=m_n,
+                               s_l_name=l_n,
+                               s_enrollment_number=enroll_num,
+                               s_phone_number=mobile,
+                               s_email=email)
+                        #        s_aadhar_card=aadhar_card,
+                        #        s_guardian_mobile_number=g_mobile_num,
+                        #        s_guardian_email=g_email,
+                        #        s_password=password,
+                        #        d=depart,
+                        #        cource=cource,
+                        #        s_address_permanent=address_per,
+                        #        s_address_temporary=address_temp
+        studetn_add.save()
+        messages.success(request,"Data is Added.")
+        return redirect('/student_table/')
 
 # <-------------- Company data | admin Only--------------->
 
@@ -189,6 +330,58 @@ def company_delete(request,id):
         c_delete.delete()
         return redirect('/company_table/')
 
+
+def add_company_ex(request):
+    if request.method == 'POST' and request.FILES['csv_file']:
+        csv_file = request.FILES['csv_file']
+        
+        # Track errors during data processing
+        errors = []
+
+        # Iterate over rows and save data to the database
+        try:
+            decoded_file = csv_file.read().decode('iso-8859-1').splitlines()
+            reader = csv.reader(decoded_file)
+
+            # Get the header row
+            header = next(reader)
+
+            # Define the mapping of column names to dictionary keys
+            column_mapping = {
+                'Company_name': 'c_name',
+                'Industry_company': 'c_industry',
+                'Email': 'c_email',
+                'Contact_number': 'c_contact_no',
+                'URL': 'c_url',
+                'Company_no': 'company_no',
+                'Company_area': 'area',
+                'Company_city': 'city',
+            }
+
+            # Iterate over rows
+            for row in reader:
+                # Map column names to dictionary keys
+                mapped_row = {column_mapping.get(header[i], header[i]): row[i] for i in range(len(row))}
+                
+                print("Mapped Row:", mapped_row)  
+                
+                # Validate and process data before creating the CompanyRegistration instance
+                try:
+                    # Create the CompanyRegistration instance
+                    company = CompanyRegistration.objects.create(**mapped_row)
+                except Exception as e:
+                    errors.append(str(e))
+        except Exception as e:
+            errors.append(str(e))
+        
+        if errors:
+            messages.error(request, 'Errors occurred while processing the CSV file: {}'.format(', '.join(errors)))
+        else:
+            messages.success(request, 'CSV file uploaded successfully.')
+        
+        return redirect('company_table')
+
+    return render(request, 'add_company.html')
 
 
 
@@ -368,9 +561,125 @@ def department_delete(request,id):
 
 
 
+# <-------------- Application | admin Only--------------->
+
+
+
+def application_list(request):
+        session_data=request.session.get('a_email')
+        if session_data:
+                print("welcome",session_data)
+        else:
+                print("not login")
+                return redirect('/admin_login/')
+        d_list = ApplicationTable.objects.all()
+        return render(request,'admin/application/application_list.html',{'d_lists':d_list})
+
+
+def application_add(request):
+        session_data=request.session.get('a_email')
+        if session_data:
+                print("welcome",session_data)
+        else:
+                print("not login")
+                return redirect('/admin_login/')
+        
+        return render(request,'admin/application/add_application.html')
+
+def application_adding(request):
+        name=request.POST.get('name')
+        studetn_add=ApplicationTable(d_name=name)
+        studetn_add.save()
+        return redirect('/application_list/')
+
+
+def application_edit(request,id):
+        session_data=request.session.get('a_email')
+        if session_data:
+                print("welcome",session_data)
+        else:
+                print("not login")
+                return redirect('/admin_login/')
+        
+        d_show=ApplicationTable.objects.get(ap_id=id)  
+        return render(request,'admin/Extra/department/edit_department.html',{'show_d':d_show})
+
+def application_editing(request,id):
+        name=request.POST.get('name')
+        studetn_add=ApplicationTable(ap_id=id,d_name=name)
+        studetn_add.save()
+        return redirect('/application_list/')
+
+
+
+def application_delete(request,id):
+        ddelete=ApplicationTable.objects.get(ap_id=id)
+        ddelete.delete()
+        return redirect('/application_list/')
+
+
+# <-------------- Placement Details | admin Only--------------->
+
+
+
+def placement_list(request):
+        session_data=request.session.get('a_email')
+        if session_data:
+                print("welcome",session_data)
+        else:
+                print("not login")
+                return redirect('/admin_login/')
+        place = PlacementDetails.objects.all()
+        return render(request,'admin/placement_details/placement_list.html',{'pla':place})
+
+
+def placement_add(request):
+        session_data=request.session.get('a_email')
+        if session_data:
+                print("welcome",session_data)
+        else:
+                print("not login")
+                return redirect('/admin_login/')
+        return render(request,'admin/placement_details/add_placement.html')
+
+def placement_adding(request):
+        name=request.POST.get('name')
+        studetn_add=PlacementDetails(d_name=name)
+        studetn_add.save()
+        return redirect('/placement_list/')
+
+
+def placement_edit(request,id):
+        session_data=request.session.get('a_email')
+        if session_data:
+                print("welcome",session_data)
+        else:
+                print("not login")
+                return redirect('/admin_login/')
+        
+        d_show=PlacementDetails.objects.get(ap_id=id)  
+        return render(request,'admin/placement_details/edit_placement.html',{'show_d':d_show})
+
+def placement_editing(request,id):
+        name=request.POST.get('name')
+        studetn_add=PlacementDetails(ap_id=id,d_name=name)
+        studetn_add.save()
+        return redirect('/placement_list/')
+
+
+
+def placement_delete(request,id):
+        ddelete=PlacementDetails.objects.get(ap_id=id)
+        ddelete.delete()
+        return redirect('/placement_list/')
+
+
+
+
 
 
 
 # <------------------------ Student Only------------------------->
 
 # <------------------------ Company Only------------------------->
+

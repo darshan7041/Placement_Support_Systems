@@ -16,14 +16,6 @@
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Add Student</h6>
 
-            <div class="form-group">
-                <form method="post" action="/add_student_ex/" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="file" name="csv_file" accept=".csv">
-                    <button type="submit" class="btn btn-success">Upload</button>
-                </form>
-            </div>
-
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -32,33 +24,33 @@
                     {{message}}
                 </div>
                 {% endfor %}
-                <form class="row g-2" action="/adding_student/" method="post">
+                <form class="row g-2" action="/student_editing/{{ show_d.s_id }}/" method="post">
                     {% csrf_token %}
                     <div class="col-md-3">
                         <label for="inputfirstName" class="form-label">First Name</label>
-                        <input type="text" name="f_name" class="form-control" id="inputfirstName">
+                        <input type="text" value="{{ show_d.s_f_name }}" name="f_name" class="form-control" id="inputfirstName">
                     </div>
                     <div class="col-md-3">
                         <label for="inputMiddleName" class="form-label">Middle Name</label>
-                        <input type="text" name="m_name" class="form-control" id="inputMiddleName">
+                        <input type="text" value="{{ show_d.s_m_name }}" name="m_name" class="form-control" id="inputMiddleName">
                     </div>
                     <div class="col-md-3">
                         <label for="inputlastName" class="form-label">Last Name</label>
-                        <input type="text" name="l_name" class="form-control" id="inputlastName">
+                        <input type="text" value="{{ show_d.s_l_name }}" name="l_name" class="form-control" id="inputlastName">
                     </div>
 
                     <div class="col-md-5">
                         <label for="inputEmail4" class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" id="inputEmail4">
+                        <input type="email" value="{{ show_d.s_email }}" name="email" class="form-control" id="inputEmail4">
                     </div>
                     <div class="col-md-5">
                         <label for="inputcontactl4" class="form-label">Contact</label>
-                        <input type="Number" name="phone_number" class="form-control" id="inputcontactl4">
+                        <input type="Number" value="{{ show_d.s_phone_number }}" name="phone_number" class="form-control" id="inputcontactl4">
                     </div>
 
                     <div class="col-md-5">
                         <label for="input_enrollment_number4" class="form-label">Enrollment Number</label>
-                        <input type="Number" name="enrollment_num" class="form-control" id="input_enrollment_number4">
+                        <input type="Number" value="{{ show_d.s_enrollment_number }}" name="enrollment_num" class="form-control" id="input_enrollment_number4">
                     </div><br><br><br><br>
 
                     <div class="col-12">

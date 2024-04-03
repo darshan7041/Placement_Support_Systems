@@ -4,6 +4,9 @@ from .views import stu_c_l,stu_r_u_d
 
 urlpatterns = [ 
 
+path('send_email/', views.send_email, name='send_email'),
+
+
 # <------------------------------ API Only------------------------------->
 path('home_app/',stu_c_l.as_view(),name="home_app"),
 path('<int:pk>',stu_r_u_d.as_view(),name="home_app"),
@@ -32,13 +35,17 @@ path('student_table/',views.student_table,name="student_table"),
 path('add_student/',views.add_student,name="add_student"),
 path('adding_student/',views.adding_student,name="adding_student"),
 path('student_delete/<int:id>/',views.student_delete,name="student_delete"),
+path('student_edit/<int:id>/',views.student_edit,name="student_edit"),
+path('student_editing/<int:id>/',views.student_editing,name="student_editing"),
 
+path('add_student_ex/',views.add_student_ex,name="add_student_ex"),
 
 # <----------- Company data | admin Only------------>
 
 path('company_table/',views.company_table,name="company_table"),
 path('company_delete/<int:id>/',views.company_delete,name="company_delete"),
 
+path('add_company_ex/',views.add_company_ex,name="add_company_ex"),
 # <----------- PS report data | admin Only------------>
 
 path('ps_report_table/',views.ps_report_table,name="ps_report_table"),
@@ -62,5 +69,23 @@ path('department_adding/',views.department_adding,name="department_adding"),
 path('department_edit/<int:id>/',views.department_edit,name="department_edit"),
 path('department_editing/<int:id>/',views.department_editing,name="department_editing"),
 path('department_delete/<int:id>/',views.department_delete,name="department_delete"),
+
+
+# <----------- application data | admin Only------------>
+path('application_list/',views.application_list,name="application_list"),
+path('application_add/',views.application_add,name="application_add"),
+path('application_adding/',views.application_adding,name="application_adding"),
+path('application_edit/<int:id>/',views.application_edit,name="application_edit"),
+path('application_editing/<int:id>/',views.application_editing,name="application_editing"),
+path('application_delete/<int:id>/',views.application_delete,name="application_delete"),
+
+
+# <----------- placement data | admin Only------------>
+path('placement_list/',views.placement_list,name="placement_list"),
+path('placement_add/',views.placement_add,name="placement_add"),
+path('placement_adding/',views.placement_adding,name="placement_adding"),
+path('placement_edit/<int:id>/',views.placement_edit,name="placement_edit"),
+path('placement_editing/<int:id>/',views.placement_editing,name="placement_editing"),
+path('placement_delete/<int:id>/',views.placement_delete,name="placement_delete"),
 
 ]
