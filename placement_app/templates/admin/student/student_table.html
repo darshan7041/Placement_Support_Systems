@@ -11,18 +11,23 @@
                         For more information about DataTables, please visit the <a target="_blank"
                             href="https://datatables.net">official DataTables documentation</a>.</p> -->
     {% for message in messages %}
-    <div class="alert alert-success text-capitalize fs-5 text-center" role="alert">
+    <div class="alert alert-error text-capitalize fs-5 text-center" role="alert">
         {{message}}
     </div>
     {% endfor %} 
     <!-- DataTales Example -->
-    <div class="card shadow mb-4">
+    <div class="card shadow mb-2">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Student List</h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <table class="table table-bordered" id="dataTable"  width="100%" cellspacing="0" style="overflow-x: auto;">
+                    <colgroup>
+                        <col style="width: 100px;">
+                        <col style="width: 150px;">
+                        <!-- Add more col tags for other columns with fixed widths -->
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>Id</th>
@@ -41,7 +46,7 @@
                             <th>Flat/Society name</th>
                             <th>Area</th>
                             <th>City</th>
-                            <th>Options</th>
+                            <th>Options</th> 
                         </tr>
                     </thead>
                     <tbody>

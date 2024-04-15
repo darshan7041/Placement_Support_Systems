@@ -14,7 +14,7 @@
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold btn-lg text-primary">Add Department</h6>
+            <h6 class="m-0 font-weight-bold btn-lg text-primary">Edit Application</h6>
 
             
 
@@ -26,11 +26,33 @@
                     {{message}}
                 </div>
                 {% endfor %}
-                <form class="row g-2" action="/department_editing/{{ show_d.d_id }}/" method="post">
+                <form class="row g-2" action="/application_editing/{{ show_d.ap_id }}/" method="post">
                     {% csrf_token %}
+
                     <div class="col-md-3">
-                        <label for="inputfirstName"  class="form-label">Name</label>
-                        <input type="text" name="name" value="{{show_d.d_name}}" class="form-control" id="inputfirstName">
+                        <label for="inputfirstName"  class="form-label">Student</label>
+                        <input type="text" name="student" value="{{show_d.s}}" class="form-control" id="inputfirstName">
+                    </div> <br>
+                    <div class="col-md-3">
+                        <label for="inputfirstName"  class="form-label">Company</label>
+                        <input type="text" name="company" value="{{show_d.c}}" class="form-control" id="inputfirstName">
+                    </div> <br>
+                    <div class="col-md-3">
+                        <label for="inputfirstName"  class="form-label">Placement</label>
+                        <input type="text" name="placement" value="{{show_d.pd}}" class="form-control" id="inputfirstName">
+                    </div> <br>
+                    <div class="col-md-3">
+                        <label for="inputDate" class="form-label">Date</label>
+                        <input type="date" name="date" value="{% if show_d.ap_date %}{{ show_d.ap_date|date:'Y-m-d' }}{% endif %}" class="form-control" id="inputDate">
+                    </div><br><br><br><br>
+                     
+                    <div class="col-md-3">
+                        <label for=""class="form-label" >Status:</label>
+                        <select  name="status" class="option form-control">
+                            <option value="Packed">Panding</option>
+                            <option value="Accepted">Accepted</option>
+                            <option value="On the way">Rejected</option>
+                        </select>
                     </div><br><br><br><br>
                     
                     <div class="col-12">

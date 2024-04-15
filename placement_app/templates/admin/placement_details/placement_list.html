@@ -14,15 +14,36 @@
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Application</h6>
+            <div class="row">
+                <div class="col-6">
+                    <h6 class="m-0 font-weight-bold text-primary">Placement From Companies</h6>
+                </div>
+                <div class="col-6 text-right">
+                    <form action="/place_search/" method="POST" class="d-flex justify-content-center">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" name="search"  class="form-control" placeholder="Search...">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-primary">Search</button>
+                            </div>
+                            <div class="ml-2 d-flex align-items-center"> 
+                                <a class="btn btn-primary btn-square btn-sm" href="{% url "placement_list" %}" data-toggle="tooltip" title="Refresh List">
+                                    <i class="fas fa-sync-alt"></i>
+                                </a>
+                            </div>
+                            
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive ">
-                    <a href="/application_add/" class="btn btn-success btn-squre btn-lr "  >
-                                        {% comment %} <i class="fas fa-trash"></i> {% endcomment %}
+                    {% comment %} <a href="/application_add/" class="btn btn-success btn-squre btn-lr "  >
+                                        <i class="fas fa-trash"></i> 
                                         Add
 
-                                    </a><br><br>
+                                    </a><br><br> {% endcomment %}
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
@@ -45,11 +66,11 @@
                             <td>{{d.pd_eligibility_criteria}}</td>
                             <td>{{d.pd_description}}</td>
                             <td>
-                                <a href="/application_edit/{{d.pd_id}}/" class="btn  btn-success  btn-sm">
+                                {% comment %} <a href="/application_edit/{{d.pd_id}}/" class="btn  btn-success  btn-sm">
                                         <i class="fas fa-thin fa-pen"></i>
-                                    </a>
+                                    </a> {% endcomment %}
 
-                                <a href="/application_delete/{{d.pd_id}}/" class="btn btn-danger btn-squre btn-sm ">
+                                <a href="/placement_delete/{{d.pd_id}}/" class="btn btn-danger btn-squre btn-sm ">
                                         <i class="fas fa-trash"></i>
                                     </a>
                             </td>

@@ -41,7 +41,9 @@
                             <th>Email</th>
                             <th>Contact Number</th>
                             <th>Website</th>
-                            <th>Location</th>
+                            <th>Company No</th>
+                            <th>Area</th>
+                            <th>City</th>
                             <th>Options</th>
                         </tr>
                     </thead>
@@ -53,8 +55,10 @@
                             <td>{{company.c_industry}}</td>
                             <td>{{company.c_email}}</td>
                             <td>{{company.c_contact_no}}</td>
-                            <td>{{company.c_URL}}</td>
-                            <td>{{company.c_location}}</td>
+                            <td>{{company.c_url}}</td>
+                            <td>{{company.company_no}}</td>
+                            <td>{{company.area}}</td>
+                            <td>{{company.city}}</td>
                             <td>
                                 {% comment %} <a href="/company_delete/{{company.c_id}}/"
                                     class="btn btn-success btn-squre btn-sm">

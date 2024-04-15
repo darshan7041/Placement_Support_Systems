@@ -10,8 +10,12 @@ from django.db import models
 
 class Admin(models.Model):
     a_id = models.AutoField(primary_key=True)
+    a_name = models.CharField(max_length=30)
     a_email = models.CharField(max_length=40, blank=True, null=True)
     a_password = models.CharField(max_length=40, blank=True, null=True)
+
+    def __str__(self):
+        return self.a_name
 
     class Meta:
         managed = False
@@ -123,7 +127,7 @@ class CompanyRegistration(models.Model):
 
     def __str__(self):
         return self.c_name
-    
+
     class Meta:
         managed = False
         db_table = 'company_registration'
@@ -136,7 +140,7 @@ class Cource(models.Model):
 
     def __str__(self):
         return self.course_name
-    
+
     class Meta:
         managed = False
         db_table = 'cource'
@@ -145,6 +149,7 @@ class Cource(models.Model):
 class Department(models.Model):
     d_id = models.AutoField(primary_key=True)
     d_name = models.CharField(max_length=40)
+
 
     def __str__(self):
         return self.d_name
@@ -208,12 +213,10 @@ class PlacementDetails(models.Model):
 
     def __str__(self):
         return self.pd_title
-    
+
     class Meta:
         managed = False
         db_table = 'placement_details'
-
-
 
 
 class PsReport(models.Model):

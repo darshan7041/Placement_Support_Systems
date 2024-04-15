@@ -11,6 +11,10 @@ path('send_email/', views.send_email, name='send_email'),
 path('home_app/',stu_c_l.as_view(),name="home_app"),
 path('<int:pk>',stu_r_u_d.as_view(),name="home_app"),
 
+path('login_student_app/', views.student_login, name='student_login'),
+path('placement_list_app/', views.placement_list_app, name='placement_list'),
+path('application_list_app/', views.application_list_app, name='application_list_app'),
+
 
 # <------------------------------ Admin login Only------------------------------->
 path('admin_login/',views.admin_login,name="admin_login"),
@@ -72,6 +76,7 @@ path('department_delete/<int:id>/',views.department_delete,name="department_dele
 
 
 # <----------- application data | admin Only------------>
+path('app_search/',views.app_search,name="app_search"),
 path('application_list/',views.application_list,name="application_list"),
 path('application_add/',views.application_add,name="application_add"),
 path('application_adding/',views.application_adding,name="application_adding"),
@@ -81,6 +86,7 @@ path('application_delete/<int:id>/',views.application_delete,name="application_d
 
 
 # <----------- placement data | admin Only------------>
+path('place_search/',views.place_search,name="place_search"),
 path('placement_list/',views.placement_list,name="placement_list"),
 path('placement_add/',views.placement_add,name="placement_add"),
 path('placement_adding/',views.placement_adding,name="placement_adding"),

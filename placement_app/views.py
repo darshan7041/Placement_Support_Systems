@@ -1,21 +1,18 @@
+from django.db import IntegrityError
 from django.shortcuts import render,redirect
-
 from placement_app.serialization import *
 from .models import *
 from django.contrib import messages
 from django.contrib.auth import logout as logout
 import openpyxl 
 import csv
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from rest_framework import generics
-# Create your views here.
-
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from django.conf import settings
-
-from django.core.exceptions import ValidationError
-
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 # <----------------------------- API Only------------------------------>
 
@@ -29,9 +26,38 @@ class stu_r_u_d(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = StudentSerializer
 
 
+def student_login(request):
+    if request.method == 'POST':
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        try:
+            student = Student.objects.get(email=email, password=password)
+            serializer = StudentSerializer(student)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Student.DoesNotExist:
+            return Response({"error": "Invalid email or password"}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({"error": "Invalid request method"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+@api_view(['GET'])
+def placement_list_app(request):
+    place = PlacementDetails.objects.all()
+    serializer = PlacementDetailsSerializer(place, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def application_list_app(request):
+    place = ApplicationTable.objects.all()
+    serializer = applicationDetailsSerializer(place, many=True)
+    return Response(serializer.data)
+
+
 
 # views.py or wherever you want to send the email
 
+# <----------------------------- Email Only------------------------------>
 
 def send_email(request):
     subject = 'Subject of your email'
@@ -89,26 +115,26 @@ def adminloginsave(request):
 # <------------------------ Admin Only------------------------->
 
 def main_admin_master(request):
-        session_data=request.session.get('a_email')
-        if session_data:
-                print("welcome",session_data)
-        else:
-                print("not login")
-                return redirect('/admin_login/')
-        
-
-        admin_id_to_show = request.session.get('a_email')
-        # admins = AdminCollege.objects.get(a_email = admin_id_to_show)
-        return render(request,'admin/main_admin.html',{'adminss':admin_id_to_show})
+    session_data = request.session.get('a_email')
+    if session_data:
+        admin = Admin.objects.get(a_email=session_data)
+        admin_name = admin.a_name  # Extract admin's name
+        print("Admin Name:", admin_name)  # Print admin's name to verify
+        return render(request, 'admin/main_admin.html', {'admin_name': admin_name})
+    else:
+        print("Not logged in")
+        return redirect('/admin_login/')
 
 def admin_home(request):
-        session_data=request.session.get('a_email')
+        session_data = request.session.get('a_email')
         if session_data:
-                print("welcome",session_data)
+                admin = Admin.objects.get(a_email=session_data)
+                admin_name = admin.a_name  # Extract admin's name
+                print("Admin Name:", admin_name)  # Print admin's name to verify
+                return render(request, 'admin/admin_home.html', {'admin_name': admin_name})
         else:
-                print("not login")
+                print("Not logged in")
                 return redirect('/admin_login/')
-        return render(request,'admin/admin_home.html')
 
 
 
@@ -116,20 +142,24 @@ def admin_home(request):
 # <-------------- Student data | admin Only--------------->
 
 def student_qualification(request, id):
-    session_data = request.session.get('a_email')
-    if session_data:
-        print("welcome", session_data)
-    else:
-        print("not login")
-        return redirect('/admin_login/')
-    
-    try:
-        sq_list = StudentQualification.objects.get(s=id)
-    except StudentQualification.DoesNotExist:
-        # Handle the case when the object does not exist
-        messages.error (request,"Data is not Added.")
-        return redirect('/student_table/')
-    return render(request, 'admin/student/student_qualification.html', {'sq': sq_list})
+        session_data = request.session.get('a_email')
+        if session_data:
+                admin = Admin.objects.get(a_email=session_data)
+                admin_name = admin.a_name  
+                print("Admin Name:", admin_name)  
+
+                try:
+                        sq_list = StudentQualification.objects.get(s=id)
+                except StudentQualification.DoesNotExist:
+                        # Handle the case when the object does not exist
+                        messages.error (request,"Data is not Added.")
+                        return redirect('/student_table/')
+                return render(request, 'admin/student/student_qualification.html', {'sq': sq_list})
+
+        else:
+                print("Not logged in")
+                return redirect('/admin_login/')
+        
 
 
 def student_table(request):
@@ -196,28 +226,28 @@ def adding_student(request):
         return redirect('/add_student/')
        
 
-def student_delete(request,id):
-        s_delete=Student.objects.get(s_id=id)
+def student_delete(request, id):
+    try:
+        s_delete = Student.objects.get(s_id=id)
         s_delete.delete()
-        return redirect('/student_table/')
+    except Student.DoesNotExist:
+        messages.error(request, 'Student does not exist.')
+    except IntegrityError:
+        messages.error(request, 'Cannot delete this student because it is referenced in other tables.')
+
+    return redirect('/student_table/')
  
 
 def add_student_ex(request):
-    if request.method == 'POST' and request.FILES['csv_file']:
+    if request.method == 'POST' and request.FILES.get('csv_file'):
         csv_file = request.FILES['csv_file']
         
-        # Track errors during data processing
         errors = []
-
-        # Iterate over rows and save data to the database
         try:
             decoded_file = csv_file.read().decode('utf-8').splitlines()
             reader = csv.reader(decoded_file)
-
-            # Get the header row
             header = next(reader)
 
-            # Define the mapping of column names to dictionary keys
             column_mapping = {
                 'First_name': 's_f_name',
                 'Middle_name': 's_m_name',
@@ -238,33 +268,31 @@ def add_student_ex(request):
                 'City': 'city',
             }
 
-            # Iterate over rows
             for row in reader:
-                # Map column names to dictionary keys
                 mapped_row = {column_mapping.get(header[i], header[i]): row[i] for i in range(len(row))}
                 
                 print("Mapped Row:", mapped_row) 
 
-                # Validate enrollment number
                 enrollment_number = mapped_row.get('s_enrollment_number')
                 if not enrollment_number.isdigit():
                     errors.append(f"Enrollment number '{enrollment_number}' is not a valid integer.")
+                    continue 
 
                 try:
                     student = Student.objects.create(**mapped_row)
                 except Exception as e:
-                    errors.append(str(e))
+                    errors.append(f"Error creating student: {e}")
+
+            if not errors:
+                messages.success(request, 'CSV file uploaded successfully.')
+            else:
+                messages.error(request, 'Errors occurred while processing the CSV file: {}'.format(', '.join(errors)))
         except Exception as e:
-            errors.append(str(e))
-        
-        if errors:
-            messages.success(request, 'CSV file uploaded successfully.')
-        else:
-            messages.error(request, 'Errors occurred while processing the CSV file: {}'.format(', '.join(errors)))
+            messages.error(request, f"An error occurred while processing the CSV file: {e}")
         
         return redirect('student_table')
 
-    return render(request, 'admin/student/add_student.html')
+    return render(request, 'admin/student/add_student.html') 
 
 
 def student_edit(request,id):
@@ -330,23 +358,18 @@ def company_delete(request,id):
         c_delete.delete()
         return redirect('/company_table/')
 
-
 def add_company_ex(request):
-    if request.method == 'POST' and request.FILES['csv_file']:
+    if request.method == 'POST' and request.FILES.get('csv_file'):
         csv_file = request.FILES['csv_file']
         
-        # Track errors during data processing
         errors = []
 
-        # Iterate over rows and save data to the database
         try:
-            decoded_file = csv_file.read().decode('iso-8859-1').splitlines()
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
             reader = csv.reader(decoded_file)
 
-            # Get the header row
             header = next(reader)
 
-            # Define the mapping of column names to dictionary keys
             column_mapping = {
                 'Company_name': 'c_name',
                 'Industry_company': 'c_industry',
@@ -358,16 +381,13 @@ def add_company_ex(request):
                 'Company_city': 'city',
             }
 
-            # Iterate over rows
             for row in reader:
-                # Map column names to dictionary keys
+                
                 mapped_row = {column_mapping.get(header[i], header[i]): row[i] for i in range(len(row))}
                 
-                print("Mapped Row:", mapped_row)  
-                
-                # Validate and process data before creating the CompanyRegistration instance
+                print("Mapped Row:", mapped_row) 
+
                 try:
-                    # Create the CompanyRegistration instance
                     company = CompanyRegistration.objects.create(**mapped_row)
                 except Exception as e:
                     errors.append(str(e))
@@ -382,7 +402,6 @@ def add_company_ex(request):
         return redirect('company_table')
 
     return render(request, 'add_company.html')
-
 
 
 # <-------------- PS report data | admin Only--------------->
@@ -401,18 +420,18 @@ def ps_report_table(request):
 
 
 def download_ps_report(request):
-    # Fetching data from database
+    
     ps_reports = PsReport.objects.all()
 
-    # Creating new xl
+
     wb = openpyxl.Workbook()
     ws = wb.active
 
-    # Write header row
+
     headers = ['PS_id', 'Student Name', 'Company Name', 'PS Date', 'Performance', 'Status']
     ws.append(headers)
 
-    # Write data rows
+
     for ps_report in ps_reports:
         ws.append([
             ps_report.ps_id,
@@ -423,7 +442,7 @@ def download_ps_report(request):
             ps_report.ps_status
         ])
 
-    # Save the workbook
+
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=ps_reports.xlsx'
     wb.save(response)
@@ -564,6 +583,23 @@ def department_delete(request,id):
 # <-------------- Application | admin Only--------------->
 
 
+def app_search(request):
+    session_data = request.session.get('a_email')
+    if not session_data:
+        print("Not logged in")
+        return redirect('/admin_login/')
+
+    if request.method == 'POST':
+        search_term = request.POST.get('search')
+        d_list = ApplicationTable.objects.filter(c__c_name=search_term) | ApplicationTable.objects.filter(s__s_f_name=search_term) | ApplicationTable.objects.filter(ap_status=search_term) | ApplicationTable.objects.filter(pd__pd_title=search_term)
+
+    else:
+        d_list = ApplicationTable.objects.all()
+
+    return render(request, 'admin/application/application_list.html', {'d_lists': d_list})
+
+
+
 
 def application_list(request):
         session_data=request.session.get('a_email')
@@ -601,14 +637,30 @@ def application_edit(request,id):
                 print("not login")
                 return redirect('/admin_login/')
         
-        d_show=ApplicationTable.objects.get(ap_id=id)  
-        return render(request,'admin/Extra/department/edit_department.html',{'show_d':d_show})
+        d_show=ApplicationTable.objects.get(ap_id=id) 
+        studentList = Student.objects.all()
+        comp = CompanyRegistration.objects.all()
+        pd = PlacementDetails.objects.all()
+        return render(request,'admin/application/edit_application.html',
+                {'show_d':d_show,'studentList':studentList,'comp':comp,'pd':pd})
 
 def application_editing(request,id):
-        name=request.POST.get('name')
-        studetn_add=ApplicationTable(ap_id=id,d_name=name)
-        studetn_add.save()
+        stud=request.POST.get('student')
+        st=Student.objects.get(s_f_name=stud)
+
+        com=request.POST.get('company')
+        co=CompanyRegistration.objects.get(c_name=com)
+
+        place=request.POST.get('placement')
+        pl=PlacementDetails.objects.get(pd_title=place)
+        
+        date=request.POST.get('date')
+        status=request.POST.get('status')
+
+        app_add=ApplicationTable(ap_id=id,s=st,c=co,pd=pl,ap_date=date,ap_status=status)
+        app_add.save()
         return redirect('/application_list/')
+
 
 
 
@@ -620,6 +672,20 @@ def application_delete(request,id):
 
 # <-------------- Placement Details | admin Only--------------->
 
+def place_search(request):
+        session_data = request.session.get('a_email')
+        if not session_data:
+                print("Not logged in")
+                return redirect('/admin_login/')
+
+        if request.method == 'POST':
+                search_term = request.POST.get('search')
+                place = PlacementDetails.objects.filter(c__c_name=search_term) | PlacementDetails.objects.filter(pd_title=search_term)
+
+        else:
+                place = PlacementDetails.objects.all()
+
+        return render(request,'admin/placement_details/placement_list.html',{'pla':place})
 
 
 def placement_list(request):
@@ -669,7 +735,7 @@ def placement_editing(request,id):
 
 
 def placement_delete(request,id):
-        ddelete=PlacementDetails.objects.get(ap_id=id)
+        ddelete=PlacementDetails.objects.get(pd_id=id)
         ddelete.delete()
         return redirect('/placement_list/')
 
